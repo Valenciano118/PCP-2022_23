@@ -35,6 +35,22 @@ class EjemploMuestraNumerosBloques {
       System.out.println( "ERROR: Argumentos numericos incorrectos." );
       System.exit( -1 );
     }
+    MiHebraBloques[] hilos = new MiHebraBloques[numHebras];
+
+    for (int i = 0; i< numHebras; i++){
+      int inicio = i*numHebras;
+      int fin = n-inicio>numHebras ? inicio + numHebras : n;
+      hilos[i] = new MiHebraBloques(inicio,fin);
+      hilos[i].start();
+    }
+
+    for (int i = 0; i< numHebras; i++) {
+      try {
+        hilos[i].join();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
     //
     // Implementacion paralela con distribucion ciclica o por bloques.
     //
