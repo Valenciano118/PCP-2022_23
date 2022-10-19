@@ -1,16 +1,14 @@
 package la02.ej2;
 
-
-class MiHebraCiclos extends Thread {
+class MiHebraBloques extends Thread {
     double[] vectorX, vectorY;
-    int inicio, salto, limite;
+    int inicio, fin;
 
-    public MiHebraCiclos(double[] vectorX, double[] vectorY, int inicio, int salto, int limite) {
+    public MiHebraBloques(double[] vectorX, double[] vectorY, int inicio, int fin) {
         this.vectorY = vectorY;
         this.vectorX = vectorX;
         this.inicio = inicio;
-        this.salto = salto;
-        this.limite = limite;
+        this.fin = fin;
     }
 
     static double evaluaFuncion(double x) {
@@ -18,14 +16,14 @@ class MiHebraCiclos extends Thread {
     }
 
     public void run() {
-        for (int i = inicio; i < limite; i += salto) {
+        for (int i = inicio; i < fin; i++) {
             vectorY[i] = evaluaFuncion(vectorX[i]);
         }
     }
 }
 
 // ============================================================================
-class EjemploFuncionCostosaCiclos {
+class EjemploFuncionCostosaBloques {
 // ============================================================================
 
     // --------------------------------------------------------------------------
@@ -107,10 +105,12 @@ class EjemploFuncionCostosaCiclos {
 */
         inicializaVectorX(vectorX);
         inicializaVectorY(vectorY);
-        MiHebraCiclos[] hilos = new MiHebraCiclos[numHebras];
+        MiHebraBloques[] hilos = new MiHebraBloques[numHebras];
         t1 = System.nanoTime();
         for (int i = 0; i < numHebras; i++) {
-            hilos[i] = new MiHebraCiclos(vectorX, vectorY, i, numHebras, n);
+            int inicio = i * numHebras;
+            int fin = n - inicio > numHebras ? inicio + numHebras : n;
+            hilos[i] = new MiHebraBloques(vectorX, vectorY, inicio, fin);
             hilos[i].start();
         }
 
@@ -122,8 +122,8 @@ class EjemploFuncionCostosaCiclos {
             }
         }
         t2 = System.nanoTime();
-        tc = ((double) (t2 - t1)) / 1.0e9;
-        System.out.println("Tiempo paralelo ciclos (seg.):                    " + tc);
+        tb = ((double) (t2 - t1)) / 1.0e9;
+        System.out.println("Tiempo paralelo bloques (seg.):                    " + tb);
         //// imprimeResultado( vectorX, vectorY );
         // Comprueba el resultado.
         sumaX = sumaVector(vectorX);
@@ -131,6 +131,8 @@ class EjemploFuncionCostosaCiclos {
         System.out.println("Suma del vector X:          " + sumaX);
         System.out.println("Suma del vector Y:          " + sumaY);
 
+
+        System.out.println("Fin del programa.");
 
         System.out.println("Fin del programa.");
     }
