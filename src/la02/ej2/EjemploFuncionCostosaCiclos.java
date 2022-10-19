@@ -3,7 +3,7 @@ package la02.ej2;
 
 class MiHebraCiclos extends Thread {
     double[] vectorX, vectorY;
-    int inicio, salto,limite;
+    int inicio, salto, limite;
 
     public MiHebraCiclos(double[] vectorX, double[] vectorY, int inicio, int salto, int limite) {
         this.vectorY = vectorY;
@@ -12,12 +12,13 @@ class MiHebraCiclos extends Thread {
         this.salto = salto;
         this.limite = limite;
     }
+
     static double evaluaFuncion(double x) {
         return Math.sin(Math.exp(-x) + Math.log1p(x));
     }
 
     public void run() {
-        for (int i = inicio; i < limite; i+=salto) {
+        for (int i = inicio; i < limite; i += salto) {
             vectorY[i] = evaluaFuncion(vectorX[i]);
         }
     }
@@ -108,12 +109,12 @@ class EjemploFuncionCostosaCiclos {
         inicializaVectorY(vectorY);
         MiHebraCiclos[] hilos = new MiHebraCiclos[numHebras];
         t1 = System.nanoTime();
-        for (int i = 0; i< numHebras; i++){
-            hilos[i] = new MiHebraCiclos(vectorX,vectorY,i,numHebras,n);
+        for (int i = 0; i < numHebras; i++) {
+            hilos[i] = new MiHebraCiclos(vectorX, vectorY, i, numHebras, n);
             hilos[i].start();
         }
 
-        for (int i = 0; i< numHebras; i++) {
+        for (int i = 0; i < numHebras; i++) {
             try {
                 hilos[i].join();
             } catch (InterruptedException e) {

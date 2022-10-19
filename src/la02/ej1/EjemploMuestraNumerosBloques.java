@@ -1,15 +1,16 @@
 package la02.ej1;
-class MiHebraBloques extends Thread{
-  int inicio,fin;
 
-  public MiHebraBloques(int inicio, int fin){
+class MiHebraBloques extends Thread {
+  int inicio, fin;
+
+  public MiHebraBloques(int inicio, int fin) {
     this.inicio = inicio;
     this.fin = fin;
   }
 
-  public void run(){
-    for (int i = inicio; i< fin; i++){
-      System.out.println(i+1);
+  public void run() {
+    for (int i = inicio; i < fin; i++) {
+      System.out.println(i + 1);
     }
   }
 }
