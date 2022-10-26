@@ -1,14 +1,18 @@
 package la02.ej1;
 
 class MiHebraBloques extends Thread {
-  int inicio, fin;
+  int n, numHebras,miId;
 
-  public MiHebraBloques(int inicio, int fin) {
-    this.inicio = inicio;
-    this.fin = fin;
+  public MiHebraBloques(int n, int numHebras, int miId) {
+    this.n = n;
+    this.numHebras = numHebras;
+    this.miId = miId;
   }
 
   public void run() {
+    int tamBloq= (n+numHebras-1)/numHebras;
+    int inicio = tamBloq * miId;
+    int fin = Math.min(inicio+tamBloq, n);
     for (int i = inicio; i < fin; i++) {
       System.out.println(i + 1);
     }
@@ -38,10 +42,8 @@ class EjemploMuestraNumerosBloques {
     }
     MiHebraBloques[] hilos = new MiHebraBloques[numHebras];
 
-    for (int i = 0; i< numHebras; i++){
-      int inicio = i*numHebras;
-      int fin = n-inicio>numHebras ? inicio + numHebras : n;
-      hilos[i] = new MiHebraBloques(inicio,fin);
+    for (int i = 0; i < numHebras; i++) {
+      hilos[i] = new MiHebraBloques(n, numHebras, i);;
       hilos[i].start();
     }
 
@@ -52,12 +54,5 @@ class EjemploMuestraNumerosBloques {
         e.printStackTrace();
       }
     }
-    //
-    // Implementacion paralela con distribucion ciclica o por bloques.
-    //
-    // Crea y arranca el vector de hebras.
-    // ... 
-    // Espera a que terminen las hebras.
-    // ... 
   }
 }

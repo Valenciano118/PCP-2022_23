@@ -1,4 +1,28 @@
-package la02.ej2;
+package la02.temp;
+
+
+class MiHebraCiclos extends Thread {
+    double[] vectorX, vectorY;
+    int inicio, salto, limite;
+
+    public MiHebraCiclos(double[] vectorX, double[] vectorY, int inicio, int salto, int limite) {
+        this.vectorY = vectorY;
+        this.vectorX = vectorX;
+        this.inicio = inicio;
+        this.salto = salto;
+        this.limite = limite;
+    }
+
+    static double evaluaFuncion(double x) {
+        return Math.sin(Math.exp(-x) + Math.log1p(x));
+    }
+
+    public void run() {
+        for (int i = inicio; i < limite; i += salto) {
+            vectorY[i] = evaluaFuncion(vectorX[i]);
+        }
+    }
+}
 
 class MiHebraBloques extends Thread {
     double[] vectorX, vectorY;
@@ -26,7 +50,7 @@ class MiHebraBloques extends Thread {
 }
 
 // ============================================================================
-class EjemploFuncionCostosaBloques {
+class EjemploFuncionCostosaCiclos {
 // ============================================================================
 
     // --------------------------------------------------------------------------
@@ -108,24 +132,24 @@ class EjemploFuncionCostosaBloques {
 */
         inicializaVectorX(vectorX);
         inicializaVectorY(vectorY);
-        MiHebraBloques[] hilos = new MiHebraBloques[numHebras];
+        MiHebraCiclos[] hilos_ciclos = new MiHebraCiclos[numHebras];
         t1 = System.nanoTime();
         for (int i = 0; i < numHebras; i++) {
-
-            hilos[i] = new MiHebraBloques(vectorX, vectorY, i, numHebras);
-            hilos[i].start();
+            hilos_ciclos[i] = new MiHebraCiclos(vectorX, vectorY, i, numHebras, n);
+            hilos_ciclos[i].start();
         }
 
         for (int i = 0; i < numHebras; i++) {
             try {
-                hilos[i].join();
+                hilos_ciclos[i].join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         t2 = System.nanoTime();
-        tb = ((double) (t2 - t1)) / 1.0e9;
-        System.out.println("Tiempo paralelo bloques (seg.):                    " + tb);
+        tc = ((double) (t2 - t1)) / 1.0e9;
+        System.out.println("Tiempo paralelo ciclos (seg.):                    " + tc);
+        System.out.println("Incremento con respecto al secuencial: " +calcularIncremento(ts,tc));
         //// imprimeResultado( vectorX, vectorY );
         // Comprueba el resultado.
         sumaX = sumaVector(vectorX);
@@ -133,8 +157,33 @@ class EjemploFuncionCostosaBloques {
         System.out.println("Suma del vector X:          " + sumaX);
         System.out.println("Suma del vector Y:          " + sumaY);
 
+        inicializaVectorX(vectorX);
+        inicializaVectorY(vectorY);
+        MiHebraBloques[] hilos_bloques = new MiHebraBloques[numHebras];
+        t1 = System.nanoTime();
+        for (int i = 0; i < numHebras; i++) {
 
-        System.out.println("Fin del programa.");
+            hilos_bloques[i] = new MiHebraBloques(vectorX, vectorY, i, numHebras);
+            hilos_bloques[i].start();
+        }
+
+        for (int i = 0; i < numHebras; i++) {
+            try {
+                hilos_bloques[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        t2 = System.nanoTime();
+        tb = ((double) (t2 - t1)) / 1.0e9;
+        System.out.println("Tiempo paralelo bloques (seg.):                    " + tb);
+        System.out.println("Incremento con respecto al secuencial: " +calcularIncremento(ts,tb));
+        //// imprimeResultado( vectorX, vectorY );
+        // Comprueba el resultado.
+        sumaX = sumaVector(vectorX);
+        sumaY = sumaVector(vectorY);
+        System.out.println("Suma del vector X:          " + sumaX);
+        System.out.println("Suma del vector Y:          " + sumaY);
 
         System.out.println("Fin del programa.");
     }
@@ -185,6 +234,9 @@ class EjemploFuncionCostosaBloques {
                     "  x: " + vectorX[i] +
                     "  y: " + vectorY[i]);
         }
+    }
+    static double calcularIncremento(double secuencial, double paralelo){
+        return secuencial/paralelo;
     }
 
 }
