@@ -58,9 +58,9 @@ public class EjemploMuestraPrimosEnVectorCiclica {
     System.out.println( "" );
     System.out.println( "Implementacion paralela ciclica." );
     t1 = System.nanoTime();
-    MiHebraCiclica[] hilos = new MiHebraCiclica[numHebras];
+    MiHebraPrimoDistCiclica[] hilos = new MiHebraPrimoDistCiclica[numHebras];
     for (int i =0; i< numHebras; i++){
-      hilos[i] = new MiHebraCiclica(i,numHebras,vectorNumeros);
+      hilos[i] = new MiHebraPrimoDistCiclica(i,numHebras,vectorNumeros);
       hilos[i].start();
     }
 
@@ -104,11 +104,11 @@ public class EjemploMuestraPrimosEnVectorCiclica {
   }
 }
 
-class MiHebraCiclica extends Thread {
+class MiHebraPrimoDistCiclica extends Thread {
   int miId, numHebras;
   long[] vector;
 
-  public MiHebraCiclica(int miId, int numHebras, long[] vector){
+  public MiHebraPrimoDistCiclica(int miId, int numHebras, long[] vector){
     this.miId = miId;
     this.numHebras = numHebras;
     this.vector = vector;
