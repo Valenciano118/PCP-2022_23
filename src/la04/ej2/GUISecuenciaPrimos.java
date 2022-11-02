@@ -1,4 +1,4 @@
-package la04;
+package la04.ej2;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -88,19 +88,21 @@ public class GUISecuenciaPrimos {
     
     // Activa inicialmente los 2 botones.
     btnComienzaSecuencia.setEnabled( true );
-    btnCancelaSecuencia.setEnabled( true );
+    btnCancelaSecuencia.setEnabled( false );
 
     // Anyade codigo para procesar el evento del boton de Comienza secuencia.
     btnComienzaSecuencia.addActionListener( new ActionListener() {
         public void actionPerformed( ActionEvent e ) {
-          // ...
+          btnComienzaSecuencia.setEnabled(false);
+          btnCancelaSecuencia.setEnabled(true);
         }
     } );
 
     // Anyade codigo para procesar el evento del boton de Cancela secuencia.
     btnCancelaSecuencia.addActionListener( new ActionListener() {
         public void actionPerformed( ActionEvent e ) {
-          // ...
+          btnComienzaSecuencia.setEnabled(true);
+          btnCancelaSecuencia.setEnabled(false);
         }
     } );
 
