@@ -1,9 +1,13 @@
-package la05.ej2;
+package la05.ej4;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 // ============================================================================
@@ -23,6 +27,8 @@ public class GUITiroAlBlanco {
     JTextField txfAnguloInicial;
     JButton btnDispara;
     Point objetivo;
+
+    MiHebraCalculadoraUnDisparo miHebra;
 
     // --------------------------------------------------------------------------
     public static void main(String args[]) {
@@ -244,6 +250,11 @@ public class GUITiroAlBlanco {
 
         /* ================= CODIGO A MODIFICAR ======================== */
         // Anyade el codigo para procesar la pulsacion del boton "Dispara".
+
+        LinkedBlockingQueue<NuevoDisparo> listaD = new LinkedBlockingQueue();
+        this.miHebra = new MiHebraCalculadoraUnDisparo(cnvCampoTiro, txfInformacion, listaD, this.objetivo);
+        this.miHebra.start();
+
         btnDispara.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // En las llamadas a getText/setText de objetos graficos aqui no hace
@@ -255,8 +266,12 @@ public class GUITiroAlBlanco {
                     ang = Double.parseDouble(txfAnguloInicial.getText().trim());
                     if ((0.0 <= ang) && (ang < 90) && (vel > 0)) {
                         txfInformacion.setText("Calculando y dibujando trayectoria...");
-                        MiHebraCalculadoraUnDisparo hebra = new MiHebraCalculadoraUnDisparo(cnvCampoTiro, txfInformacion, new NuevoDisparo(vel, ang), objetivo);
-                        hebra.start();
+                        NuevoDisparo disparo = new NuevoDisparo(vel, ang);
+                        try {
+                            listaD.put(disparo);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     } else {
                         txfInformacion.setText("ERROR: Datos incorrectos.");
                     }
@@ -511,14 +526,11 @@ class Proyectil {
             final int finalIntPosY = this.intPosY;
             final int finalIntPosXOld = this.intPosXOld;
             final int finalIntPosYOld = this.intPosYOld;
+            cnvCampoTiro.dibujaProyectil(finalIntPosX, finalIntPosY,
+                    finalIntPosXOld, finalIntPosYOld);
 
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    cnvCampoTiro.dibujaProyectil(finalIntPosX, finalIntPosY,
-                            finalIntPosXOld, finalIntPosYOld);
-                }
-            });
+            //cnvCampoTiro.dibujaProyectil(intPosX, intPosY,
+            //       intPosXOld, intPosYOld);
         }
     }
 }
@@ -527,33 +539,44 @@ class MiHebraCalculadoraUnDisparo extends Thread {
 
     CanvasCampoTiro canvas;
     JTextField txfInformacion;
-    NuevoDisparo disparo;
+    LinkedBlockingQueue<NuevoDisparo> listaD;
     Point objetivo;
+    ArrayList<Proyectil> listaP;
 
-    public MiHebraCalculadoraUnDisparo(CanvasCampoTiro canvas, JTextField txfInformacion, NuevoDisparo disparo, Point objetivo) {
+    public MiHebraCalculadoraUnDisparo(CanvasCampoTiro canvas, JTextField txfInformacion, LinkedBlockingQueue listaD, Point objetivo) {
         this.canvas = canvas;
         this.txfInformacion = txfInformacion;
-        this.disparo = disparo;
+        this.listaD = listaD;
         this.objetivo = objetivo;
+        this.listaP = new ArrayList<>();
     }
 
     public void run() {
-        Proyectil p;
-        boolean impactado = false;
 
-        p = new Proyectil(disparo.velocidadInicial, disparo.anguloInicial, canvas);
+        while (true) {
+            while (listaD.size() > 0 || listaP.size() == 0) {
+                try {
+                    NuevoDisparo disparo = listaD.take();
+                    Proyectil nuevoProyectil = new Proyectil(disparo.velocidadInicial, disparo.anguloInicial,canvas);
+                    listaP.add(nuevoProyectil);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
 
-        while (!impactado) {
-            p.imprimeEstadoProyectilEnConsola();
+            for (Iterator<Proyectil> it = listaP.iterator(); it.hasNext();){
+                Proyectil proyectil = it.next();
 
-            p.mueveUnIncremental();
+                proyectil.imprimeEstadoProyectilEnConsola();
 
+                proyectil.mueveUnIncremental();
 
-            p.actualizaDibujoDeProyectil();
+                proyectil.actualizaDibujoDeProyectil();
 
-            impactado = determinaEstadoProyectil(p);
-
-            duermeUnPoco(1L);
+                if (determinaEstadoProyectil(proyectil))
+                    it.remove();
+                duermeUnPoco(1L);
+            }
         }
     }
 
