@@ -38,6 +38,7 @@ class EjemploPalabraMasUsada {
 
         // Lectura y carga de lineas en "vectorLineas".
         vectorLineas = readFile(nombreFichero);
+        int vectorLength = vectorLineas.size();
         System.out.println("Numero de lineas leidas: " + vectorLineas.size());
         System.out.println();
 
@@ -84,9 +85,8 @@ class EjemploPalabraMasUsada {
         //
         // Implementacion paralela 1: Uso de synchronizedMap.
         //
-        int vectorLength = vectorLineas.size();
         t1 = System.nanoTime();
-        HashMap<String, Integer> maCuentaPalabras = new HashMap<>(1000, 0.75F);
+        Map<String, Integer> maCuentaPalabras = Collections.synchronizedMap(new HashMap<>(1000, 0.75F));
         MiHebra_1[] vecMihebra1 = new MiHebra_1[numHebras];
         for (int i = 0; i < numHebras; i++) {
             vecMihebra1[i] = new MiHebra_1(maCuentaPalabras, i, numHebras, vectorLength, vectorLineas);
@@ -199,11 +199,7 @@ class EjemploPalabraMasUsada {
         t2 = System.nanoTime();
         double tt5 = ((double) (t2 - t1)) / 1.0e9;
         System.out.print("Implementacion paralela 5: ");
-        HashMap<String, Integer> printablechmaCuentaPalabras = new HashMap<>();
-        for (String clave : chmaCuentaPalabras.keySet()) {
-            printablechmaCuentaPalabras.put(clave, chmaCuentaPalabras.get(clave).intValue());
-        }
-        imprimePalabraMasUsadaYVeces(printablechmaCuentaPalabras);
+        imprimePalabraMasUsadaYVecesAtomic(chmaCuentaPalabras);
         System.out.println(" Tiempo(s): " + tt5 + " , Incremento " + tt / tt5);
         System.out.println("Num. elems. tabla hash: " + chmaCuentaPalabras.size());
         System.out.println();
@@ -228,11 +224,7 @@ class EjemploPalabraMasUsada {
         t2 = System.nanoTime();
         double tt6 = ((double) (t2 - t1)) / 1.0e9;
         System.out.print("Implementacion paralela 6: ");
-        HashMap<String, Integer> printablechmaCuentaPalabras2 = new HashMap<>();
-        for (String clave : chmaCuentaPalabras2.keySet()) {
-            printablechmaCuentaPalabras2.put(clave, chmaCuentaPalabras2.get(clave).intValue());
-        }
-        imprimePalabraMasUsadaYVeces(printablechmaCuentaPalabras2);
+        imprimePalabraMasUsadaYVecesAtomic(chmaCuentaPalabras);
         System.out.println(" Tiempo(s): " + tt6 + " , Incremento " + tt / tt6);
         System.out.println("Num. elems. tabla hash: " + chmaCuentaPalabras2.size());
         System.out.println();
@@ -251,14 +243,7 @@ class EjemploPalabraMasUsada {
         t2 = System.nanoTime();
         double tt7 = ((double) (t2-t1))/ 1.0e9;
         System.out.print("Implementacion paralela 7: ");
-        Map<String,Integer> printablestCuentaPalabras = new HashMap<>();
-        for (String clave : stCuentaPalabras.keySet()){
-            Long valor = stCuentaPalabras.get(clave);
-            if (valor != null){
-                printablestCuentaPalabras.put(clave, valor.intValue());
-            }
-        }
-        imprimePalabraMasUsadaYVeces(printablestCuentaPalabras);
+        imprimePalabraMasUsadaYVecesLong(stCuentaPalabras);
         System.out.println(" Tiempo(s): " + tt7 + " , Incremento " + tt/tt7);
         System.out.println("Num. elems. tabla hash: " + stCuentaPalabras.size());
         System.out.println();
@@ -324,6 +309,56 @@ class EjemploPalabraMasUsada {
                 "veces: " + numVecesPalabraMasUsada + " )");
     }
 
+    static void imprimePalabraMasUsadaYVecesAtomic(
+            Map<String, AtomicInteger> cuentaPalabras) {
+        Vector<Map.Entry> lista =
+                new Vector<Map.Entry>(cuentaPalabras.entrySet());
+
+        String palabraMasUsada = "";
+        int numVecesPalabraMasUsada = 0;
+        // Calcula la palabra mas usada.
+        for (int i = 0; i < lista.size(); i++) {
+            String palabra = (String) lista.get(i).getKey();
+            AtomicInteger aux = (AtomicInteger) lista.get(i).getValue();
+            int numVeces = aux.intValue();
+            if (i == 0) {
+                palabraMasUsada = palabra;
+                numVecesPalabraMasUsada = numVeces;
+            } else if (numVecesPalabraMasUsada < numVeces) {
+                palabraMasUsada = palabra;
+                numVecesPalabraMasUsada = numVeces;
+            }
+        }
+        // Imprime resultado.
+        System.out.print("( Palabra: '" + palabraMasUsada + "' " +
+                "veces: " + numVecesPalabraMasUsada + " )");
+    }
+
+    static void imprimePalabraMasUsadaYVecesLong(
+            Map<String, Long> cuentaPalabras) {
+        Vector<Map.Entry> lista =
+                new Vector<Map.Entry>(cuentaPalabras.entrySet());
+
+        String palabraMasUsada = "";
+        int numVecesPalabraMasUsada = 0;
+        // Calcula la palabra mas usada.
+        for (int i = 0; i < lista.size(); i++) {
+            String palabra = (String) lista.get(i).getKey();
+            Long aux = (Long) lista.get(i).getValue();
+            int numVeces = aux.intValue();
+            if (i == 0) {
+                palabraMasUsada = palabra;
+                numVecesPalabraMasUsada = numVeces;
+            } else if (numVecesPalabraMasUsada < numVeces) {
+                palabraMasUsada = palabra;
+                numVecesPalabraMasUsada = numVeces;
+            }
+        }
+        // Imprime resultado.
+        System.out.print("( Palabra: '" + palabraMasUsada + "' " +
+                "veces: " + numVecesPalabraMasUsada + " )");
+    }
+
     // --------------------------------------------------------------------------
     static void printCuentaPalabrasOrdenadas(
             HashMap<String, Integer> cuentaPalabras) {
@@ -362,8 +397,8 @@ class MiHebra_1 extends Thread {
     Vector<String> lineasFich;
 
 
-    public MiHebra_1(HashMap<String, Integer> cuentaPalabras, int miId, int numHebras, int vectorLength, Vector<String> lineasFich) {
-        this.cuentaPalabras = Collections.synchronizedMap(cuentaPalabras);
+    public MiHebra_1(Map<String, Integer> cuentaPalabras, int miId, int numHebras, int vectorLength, Vector<String> lineasFich) {
+        this.cuentaPalabras = cuentaPalabras;
         this.miId = miId;
         this.numHebras = numHebras;
         this.lineasFich = lineasFich;
@@ -388,13 +423,11 @@ class MiHebra_1 extends Thread {
         synchronized (cuentaPalabras) {
             Integer numVeces = cuentaPalabras.get(palabra);
             if (numVeces != null) {
-                cuentaPalabras.replace(palabra, numVeces + 1);
+                cuentaPalabras.put(palabra, numVeces + 1);
             } else {
                 cuentaPalabras.put(palabra, 1);
             }
         }
-
-
     }
 }
 
