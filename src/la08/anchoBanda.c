@@ -62,22 +62,26 @@ int main(int argc, char *argv[])
     vecArgs[3] = maxTam;
     vecArgs[4] = incTam;
 
-    for (i = 1; i < numProcs; i++)
-    {
-      MPI_Send(vecArgs, 5, MPI_INT, i, 33, MPI_COMM_WORLD);
-    }
+    
   }
 
   // Difusion del vector vecArgs con operaciones punto a punto.
   // ... (A)
+
+  if (miId == 0){
+    for (i = 1; i < numProcs; i++)
+    {
+      MPI_Send(vecArgs, 5, MPI_INT, i, 33, MPI_COMM_WORLD);
+    }
+  } else {
+      MPI_Recv(vecArgs, 5, MPI_INT, 0, 33, MPI_COMM_WORLD, &s);
+  }
 
   // El resto de procesos inicializan las cinco variables con la
   // informacion del vector. El proceso 0 no tiene que hacerlo porque
   // ya habia inicializado las variables.
   if (miId != 0)
   {
-    MPI_Recv(vecArgs, 5, MPI_INT, 0, 33, MPI_COMM_WORLD, &s);
-
     numArgs = vecArgs[0];
     numMensajes = vecArgs[1];
     minTam = vecArgs[2];
@@ -173,7 +177,7 @@ int main(int argc, char *argv[])
     // ... (C)
     tiempoTotal = t2 - t1;
     tiempoPorMensajeEnMicroseg =  (tiempoTotal / numMensajes) * 1000000;
-    anchoDeBandaEnMbs = 1 / (tiempoPorMensajeEnMicroseg / tam); // t = β + τ n -> τ = (t - β) / n,   Como no tenemos β la ignoramos y hacemos solo τ = t / n
+    anchoDeBandaEnMbs = 1 / (tiempoPorMensajeEnMicroseg / tam) ; // t = β + τ n -> τ = (t - β) / n, ignoramos β y se queda  τ = t / n
 
     // Escritura de resultados.
     if (miId == 0)
