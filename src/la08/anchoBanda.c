@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
   int numMensajes, minTam, maxTam, incTam, tam, i, j;
   char *ptrWorkspace;
   double t1, t2, tiempoTotal, tiempoPorMensajeEnMicroseg,
-      anchoDeBandaEnMbs;
+      anchoDeBandaEnMbs ;
   char miNombreProc[MPI_MAX_PROCESSOR_NAME];
   int longNombreProc;
 
@@ -169,7 +169,6 @@ int main(int argc, char *argv[])
         MPI_Recv(ptrWorkspace, tam, MPI_CHAR, 0, 33, MPI_COMM_WORLD, &s);
       }
       MPI_Send(ptrWorkspace, 0, MPI_CHAR, 0, 33, MPI_COMM_WORLD);
-
     }
 
     // Calculo de prestaciones: tiempoTotal, tiempoPorMensajeEnMicroseg,
