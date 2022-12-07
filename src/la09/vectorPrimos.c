@@ -76,13 +76,44 @@ int main( int argc, char *argv[] ) {
   
   // Ejercicio 1
   // El proceso 0 envia todos los numeros y un veneno
+  if( miId == 0){
+    for( i = 0; i < dimVectorNumeros; i++ ) {
+      num = vectorNumeros[i];
+      MPI_Send(&num, 1, MPI_LONG_LONG_INT, 1, 88, MPI_COMM_WORLD);
+    }
+    num = 0;
+    MPI_Send(&num, 1, MPI_LONG_LONG_INT, 1, 66, MPI_COMM_WORLD);
+  }
   // ...
   // El proceso 1 recibe numeros hasta que recibe un veneno
   // ...
+  if( miId == 1){
+    MPI_Recv(&num, 1 , MPI_LONG_LONG_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &s);
+    if (esPrimo(num)){
+        numPrimosParLocal++;
+      }
+    while (s.MPI_TAG != 66){
+      MPI_Recv(&num, 1 , MPI_LONG_LONG_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &s);
+      if (esPrimo(num)){
+        numPrimosParLocal++;
+      }
+    }
+  }
   // El proceso 1 envia cuantos primos habia al proceso 0, que lo recibe
   // ...
+  if( miId == 1 ){
+    MPI_Send(&numPrimosParLocal, 1, MPI_INT, 0, 88, MPI_COMM_WORLD);
+  }
 
+  if( miId == 0 ){
+    MPI_Recv(&numPrimosPar, 1, MPI_INT, 1, 88, MPI_COMM_WORLD, &s);
+  }
   // Ejercicio 2
+
+  MPI_Barrier( MPI_COMM_WORLD );
+  t1 = MPI_Wtime();
+  numPrimosPar = 0; numPrimosParLocal = 0;
+
   // El proceso 0 recibe peticiones y responde con numeros o venenos
   // ...
   // Los procesos trabajadores envian peticiones y reciben numeros o un veneno
@@ -95,7 +126,7 @@ int main( int argc, char *argv[] ) {
   if( miId == 0 ) {
     printf( "Implementacion paralela.    Tiempo (s): %lf\n", ttPar );
     if (argc == 1)
-      printf( "Implementacion paralela.    Incremento: %lf\n", ... );
+      printf( "Implementacion paralela.    Incremento: %lf\n", ttSec/ttPar );
     printf( "Numero de primos en el vector: %d\n", numPrimosPar );
   }
 
