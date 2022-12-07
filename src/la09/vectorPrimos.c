@@ -99,17 +99,14 @@ int main(int argc, char *argv[])
   if (miId == 1)
   {
     MPI_Recv(&num, 1, MPI_LONG_LONG_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &s);
-    if (esPrimo(num))
-    {
-      numPrimosParLocal++;
-    }
+
     while (s.MPI_TAG != 66)
     {
-      MPI_Recv(&num, 1, MPI_LONG_LONG_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &s);
       if (esPrimo(num))
       {
         numPrimosParLocal++;
       }
+      MPI_Recv(&num, 1, MPI_LONG_LONG_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &s);
     }
   }
   // El proceso 1 envia cuantos primos habia al proceso 0, que lo recibe
@@ -163,7 +160,7 @@ int main(int argc, char *argv[])
 
   // Todos los procesos colaboran para obtener el numero de primos
 
-  MPI_Reduce(&numPrimosParLocal, &numPrimosPar, 1, MPI_INT, MPI_SUM, 0,MPI_COMM_WORLD);
+  MPI_Reduce(&numPrimosParLocal, &numPrimosPar, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
   MPI_Barrier(MPI_COMM_WORLD);
   t2 = MPI_Wtime();
