@@ -4,7 +4,7 @@
 #include "math.h"
 
 // #define IMPRIME 1
-// #define COSTOSA 1
+#define COSTOSA 1
 
 // ============================================================================
 
