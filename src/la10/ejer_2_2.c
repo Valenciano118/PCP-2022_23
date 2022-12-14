@@ -18,19 +18,26 @@ int main(int argc, char *argv[])
     int suma;
     MPI_Status s;
 
+    int ultimoPar = (numProcs % 2 == 0) ? numProcs - 2 : numProcs - 1;
+
     if (miId == 0)
     {
-        int otroDato, i;
+        int otroDato;
         suma = dato;
-        for (i = 0; i < (numProcs - 1) / 2; i++)
-        {
-            MPI_Recv(&otroDato, 1, MPI_INT, MPI_ANY_SOURCE, 33, MPI_COMM_WORLD, &s);
-            suma += otroDato;
-        }
+        MPI_Recv(&otroDato, 1, MPI_INT, miId + 2, 33, MPI_COMM_WORLD, &s);
+        suma += otroDato;
+    }
+    else if (miId == ultimoPar)
+    {
+        MPI_Send(&dato, 1, MPI_INT, miId - 2, 33, MPI_COMM_WORLD);
     }
     else if (miId % 2 == 0)
     {
-        MPI_Send(&dato, 1, MPI_INT, 0, 33, MPI_COMM_WORLD);
+        int datoAux;
+        MPI_Recv(&datoAux, 1, MPI_INT, miId + 2, 33, MPI_COMM_WORLD, &s);
+        datoAux += dato;
+
+        MPI_Send(&datoAux, 1, MPI_INT, miId - 2, 33, MPI_COMM_WORLD);
     }
 
     if (miId == 0)

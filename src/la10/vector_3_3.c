@@ -172,10 +172,10 @@ int main(int argc, char *argv[])
         vectorSumasLocales = (double *)malloc(sizeof(double) * numProcs);
     }
 
-    MPI_Gather(&sumaLocal, 1, MPI_DOUBLE, vectorSumasLocales, numProcs, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(&sumaLocal, 1, MPI_DOUBLE, vectorSumasLocales, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     if (miId == 0)
     {
-        for (i = 1; i < numProcs; i++)
+        for (i = 0; i < numProcs; i++)
         {
             sumaFinal += vectorSumasLocales[i];
         }

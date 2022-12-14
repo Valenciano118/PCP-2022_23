@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     // Se acumulan las sumas locales de cada procesador en sumaFinal sobre el proceso 0
     // ... (G)
 
-    MPI_Reduce(&sumaFinal, &sumaLocal, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&sumaLocal, &sumaFinal, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // Finalizacion del calculo de la reduccion en paralelo y su coste (tPar).
     // ... (H)
