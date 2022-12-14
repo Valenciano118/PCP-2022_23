@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     {
         printf("Soy el proceso %d. mi dato es %d y la suma total es %d\n", miId, dato, suma);
     }
-    else if (miId % 2 == 0)
+    else
     {
         printf("Soy el proceso %d y mi dato es %d\n", miId, dato);
     }
