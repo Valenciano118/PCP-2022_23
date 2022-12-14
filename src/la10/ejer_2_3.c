@@ -14,23 +14,23 @@ int main(int argc, char *argv[])
 
     // --------------------------------------------------------------------------
     // ... (A)
-
     int dato = numProcs - miId + 1;
-    int suma;
+    int suma, datoAux;
+    MPI_Status s;
+
+    datoAux = (miId % 2 == 0) ? dato : 0;
 
     MPI_Barrier(MPI_COMM_WORLD);
-
-    MPI_Reduce(&dato, &suma, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&datoAux, &suma, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if (miId == 0)
     {
         printf("Soy el proceso %d. mi dato es %d y la suma total es %d\n", miId, dato, suma);
     }
-    else
+    else if (miId % 2 == 0)
     {
         printf("Soy el proceso %d y mi dato es %d\n", miId, dato);
     }
-
     // --------------------------------------------------------------------------
 
     // Finalización de MPI.
