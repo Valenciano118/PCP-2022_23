@@ -170,39 +170,15 @@ int main(int argc, char *argv[])
   MPI_Barrier(MPI_COMM_WORLD);
   // Inicio del calculo de la reduccion en paralelo y su coste (tPar).
   // ... (E)
-  MPI_Barrier(MPI_COMM_WORLD);
-  t1 = MPI_Wtime();
 
   // Cada proceso suma todos los elementos de vectorLocal
   // ... (F)
-  for (i = 0; i < dimVectorLocal; i++)
-  {
-    sumaLocal += evaluaFuncion(vectorLocal[i]);
-  }
 
   // Se acumulan las sumas locales de cada procesador en sumaFinal sobre el proceso 0
   // ... (G)
-  if (miId == 0)
-  {
-    sumaFinal += sumaLocal;
-    for (i = 1; i < numProcs; i++)
-    {
-      double sumaAux;
-      MPI_Status s;
-      MPI_Recv(&sumaAux, 1, MPI_DOUBLE, MPI_ANY_SOURCE, 33, MPI_COMM_WORLD, &s);
-      sumaFinal += sumaAux;
-    }
-  }
-  else
-  {
-    MPI_Send(&sumaLocal, 1, MPI_DOUBLE, 0, 33, MPI_COMM_WORLD);
-  }
 
   // Finalizacion del calculo de la reduccion en paralelo y su coste (tPar).
   // ... (H)
-  MPI_Barrier(MPI_COMM_WORLD);
-  t2 = MPI_Wtime();
-  tPar = t2 - t1;
 
   // El proceso 0 imprime la sumas, los costes y los incrementos
   if (miId == 0)
